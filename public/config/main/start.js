@@ -219,9 +219,33 @@ const app = Vue.createApp({
             });
 
             routePolyline.setMap(map);
-        }
-    },
 
+            // var routeDirectionsService = new google.maps.DirectionsService();
+            // var routeDirectionsRenderer = new google.maps.DirectionsRenderer();
+            // routeDirectionsRenderer.setMap(routeMap);
+            // routeDirectionsRenderer.setDirections(this.route["DRIVING"]);
+
+        },
+
+        startRecording() {
+            if (window.hasOwnProperty('webkitSpeechRecognition')) {
+                console.log("recording")
+                var recognition = new webkitSpeechRecognition();
+                recognition.continuous = true;
+                recognition.interimResults = true;
+                recognition.lang = 'en-US';
+                recognition.start();
+                recognition.onresult = function(event) {
+                    console.log(event.results[0][0].transcript);
+                };
+
+                recognition.onerror = function(event) {
+                    recognition.stop();
+                };
+            };
+        },
+
+    },
     created() {
         this.getLocation();
     }

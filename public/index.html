@@ -27,6 +27,11 @@
             <div class="col-3 p-3" style="background-color: #fafafa;">
                 <div class="mb-3">
                     <input type="text" id="start" class="form-control mb-2" placeholder="Start location">
+
+                    <button type="button" id="start-recording" class="btn btn-primary mb-2 w-100" @click="startRecording()">Start Recording</button>
+                    <button type="button" id="stop-recording" class="btn btn-danger mb-2 w-100" @click="stopRecording()" disabled>Stop Recording</button>
+
+
                     <input type="text" id="dest" class="form-control mb-2" placeholder="End location">
 
                     <button type="button" class="btn btn-secondary w-100" @click="calcRoute()">Find Route</button>
