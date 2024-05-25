@@ -9,7 +9,7 @@
   },
   "type": "module",
   "scripts": {
-    "start": "nodemon config/main/start.js"
+    "start": "nodemon config/start.js"
   },
   "keywords": [],
   "author": "",
