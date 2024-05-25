@@ -1,6 +1,6 @@
 const key = "AIzaSyAmU2Q8AKdlcwSQ5VF7_TtZo1AVnlX4GsE"
 
-let map, directionsService, directionsRenderer, sourceAutoComplete, destAutoComplete;
+let map, directionsService, directionsRenderer, sourceAutoComplete, destAutoComplete, recognition;
 
 const app = Vue.createApp({
     data() {
@@ -17,7 +17,8 @@ const app = Vue.createApp({
             ],
             selectedTransit: 'DRIVING',
             route: {},
-            currRoute: null
+            currRoute: null,
+            speechOrigin: ""
         }
     },
 
@@ -73,12 +74,13 @@ const app = Vue.createApp({
                     directionsRenderer.setDirections(this.route["DRIVING"]);
                     this.currRoute = this.route["DRIVING"].routes[0].legs[0].steps
                     console.log(this.currRoute)
-                    console.log(this.currRoute.instructions)
                     console.log(this.route)
 
                     // Draw the route for each leg
-                    this.currRoute.forEach((leg, index) => {
-                        this.drawRoute(leg.polyline.points, index);
+                    this.$nextTick(() => {
+                        this.currRoute.forEach((leg, index) => {
+                            this.drawRoute(leg.polyline.points, index);
+                        });
                     });
 
                 }
@@ -173,9 +175,11 @@ const app = Vue.createApp({
                         directionsRenderer.setDirections(this.route[transitType]);
                         console.log(this.route)
 
-                        // Draw the route for each leg
-                        this.currRoute.forEach((leg, index) => {
-                            this.drawRoute(leg.polyline.points, index);
+                        // Ensure the DOM is updated before drawing routes
+                        this.$nextTick(() => {
+                            this.currRoute.forEach((leg, index) => {
+                                this.drawRoute(leg.polyline.points, index);
+                            });
                         });
 
                     }
@@ -191,9 +195,11 @@ const app = Vue.createApp({
                 directionsRenderer.setDirections(this.route[transitType]);
                 console.log(this.route)
 
-                // Draw the route for each leg
-                this.currRoute.forEach((leg, index) => {
-                    this.drawRoute(leg.polyline.points, index);
+                // Ensure the DOM is updated before drawing routes
+                this.$nextTick(() => {
+                    this.currRoute.forEach((leg, index) => {
+                        this.drawRoute(leg.polyline.points, index);
+                    });
                 });
 
             }
@@ -201,14 +207,24 @@ const app = Vue.createApp({
         },
 
         drawRoute(path, index) {
+            console.log("drawing route for leg " + index)
             const mapId = 'map-' + index;
-            const map = new google.maps.Map(document.getElementById(mapId), {
+            const mapElement = document.getElementById(mapId);
+
+            // Ensure the map container is visible and initialized
+            if (!mapElement) {
+                console.error(`Map element with id ${mapId} not found`);
+                return;
+            }
+
+            const mapRoute = new google.maps.Map(mapElement, {
                 center: { lat: this.currLat, lng: this.currLng },
                 zoom: 13,
                 disableDefaultUI: true,
             });
 
             const decodedPath = google.maps.geometry.encoding.decodePath(path);
+            console.log(decodedPath)
 
             const routePolyline = new google.maps.Polyline({
                 path: decodedPath,
@@ -218,25 +234,20 @@ const app = Vue.createApp({
                 strokeWeight: 2,
             });
 
-            routePolyline.setMap(map);
-
-            // var routeDirectionsService = new google.maps.DirectionsService();
-            // var routeDirectionsRenderer = new google.maps.DirectionsRenderer();
-            // routeDirectionsRenderer.setMap(routeMap);
-            // routeDirectionsRenderer.setDirections(this.route["DRIVING"]);
-
+            routePolyline.setMap(mapRoute);
         },
 
         startRecording() {
             if (window.hasOwnProperty('webkitSpeechRecognition')) {
                 console.log("recording")
-                var recognition = new webkitSpeechRecognition();
+                recognition = new webkitSpeechRecognition();
                 recognition.continuous = true;
                 recognition.interimResults = true;
-                recognition.lang = 'en-US';
+                recognition.lang = 'en-SG';
                 recognition.start();
-                recognition.onresult = function(event) {
+                recognition.onresult = (event) => {
                     console.log(event.results[0][0].transcript);
+                    this.speechOrigin = event.results[0][0].transcript;
                 };
 
                 recognition.onerror = function(event) {
@@ -244,6 +255,12 @@ const app = Vue.createApp({
                 };
             };
         },
+
+        stopRecording(id) {
+            console.log("stopping")
+            document.getElementById(id).value = this.speechOrigin;
+            recognition.stop();
+        }
 
     },
     created() {
