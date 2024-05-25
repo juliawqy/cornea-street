@@ -56,19 +56,21 @@ const app = Vue.createApp({
                 travelMode: 'DRIVING'
             };
 
-            directionsService.route(request, function(result, status) {
+            this.route = {
+                "DRIVING": null,
+                "TRANSIT": null,
+                "WALKING": null,
+                "BICYCLING": null
+            }
+
+            directionsService.route(request, (result, status) => {
                 if(status == 'OK') {
                     data = result;
                     console.log(data)
 
-                    this.route = {
-                        "DRIVING": data,
-                        "TRANSIT": null,
-                        "WALKING": null,
-                        "BICYCLING": null
-                    }
-
-                    directionsRenderer.setDirections(data);
+                    this.route["DRIVING"] = data
+                    directionsRenderer.setDirections(this.route["DRIVING"]);
+                    console.log(this.route)
                 }
                 else {
                     console.log(result)
@@ -138,15 +140,10 @@ const app = Vue.createApp({
         },
 
         setTravelMode(transitType) {
-            // console.log(event.target.value)
-            // this.travelMode = event.target.value;
-
-            //^ is autocomplete lol
-            //so need to map to given value and set in search, default is driving
-            //need to handle buttons n shit
 
             this.selectedTransit = transitType
             if (this.route[transitType] == null) {
+                console.log("loading from api")
 
                 var source = document.getElementById('start').value;
                 var dest = document.getElementById('dest').value;
@@ -157,22 +154,22 @@ const app = Vue.createApp({
                     travelMode: transitType
                 };
 
-                directionsService.route(request, function(result, status) {
+                directionsService.route(request, (result, status) => {
                     if(status == 'OK') {
                         data = result;
                         console.log(data)
                         this.route[transitType] = data
+                        directionsRenderer.setDirections(this.route[transitType]);
+                        console.log(this.route)
                     }
                     else {
                         console.log(result)
                     }
-                });
-
-                directionsRenderer.setDirections(this.route[transitType]);
-                console.log(this.route)
+                });                
             }
 
             else {
+                console.log("loading from dict")
                 directionsRenderer.setDirections(this.route[transitType]);
                 console.log(this.route)
             }
