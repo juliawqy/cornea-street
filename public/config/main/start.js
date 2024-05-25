@@ -9,6 +9,14 @@ const app = Vue.createApp({
             input: "",
             currLat: 0,
             currLng: 0,
+            options: [
+                'DRIVING',
+                'TRANSIT',
+                'WALKING',
+                'BICYCLING'
+            ],
+            selectedTransit: 'DRIVING',
+            route: {}
         }
     },
 
@@ -53,6 +61,13 @@ const app = Vue.createApp({
                     data = result;
                     console.log(data)
 
+                    this.route = {
+                        "DRIVING": data,
+                        "TRANSIT": null,
+                        "WALKING": null,
+                        "BICYCLING": null
+                    }
+
                     directionsRenderer.setDirections(data);
                 }
                 else {
@@ -82,14 +97,6 @@ const app = Vue.createApp({
             this.initMap();
             
             console.log("Latitude: " + latitude);
-            console.log("Longitude: " + longitude);
-
-            // this.src = `https://www.google.com/maps/embed/v1/view?key=${key}&center=${latitude},${longitude}&zoom=30`;
-            // this.src = latitude + "," + longitude
-
-
-            // console.log(this.src)
-            // return (latitude, longitude)
         },
         
         showError(error) {
@@ -128,6 +135,48 @@ const app = Vue.createApp({
 
 
             console.log(this.src)
+        },
+
+        setTravelMode(transitType) {
+            // console.log(event.target.value)
+            // this.travelMode = event.target.value;
+
+            //^ is autocomplete lol
+            //so need to map to given value and set in search, default is driving
+            //need to handle buttons n shit
+
+            this.selectedTransit = transitType
+            if (this.route[transitType] == null) {
+
+                var source = document.getElementById('start').value;
+                var dest = document.getElementById('dest').value;
+
+                let request = {
+                    origin: source,
+                    destination: dest,
+                    travelMode: transitType
+                };
+
+                directionsService.route(request, function(result, status) {
+                    if(status == 'OK') {
+                        data = result;
+                        console.log(data)
+                        this.route[transitType] = data
+                    }
+                    else {
+                        console.log(result)
+                    }
+                });
+
+                directionsRenderer.setDirections(this.route[transitType]);
+                console.log(this.route)
+            }
+
+            else {
+                directionsRenderer.setDirections(this.route[transitType]);
+                console.log(this.route)
+            }
+
         }
     },
 
