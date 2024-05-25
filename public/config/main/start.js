@@ -16,7 +16,8 @@ const app = Vue.createApp({
                 'BICYCLING'
             ],
             selectedTransit: 'DRIVING',
-            route: {}
+            route: {},
+            currRoute: null
         }
     },
 
@@ -56,19 +57,24 @@ const app = Vue.createApp({
                 travelMode: 'DRIVING'
             };
 
-            directionsService.route(request, function(result, status) {
+            this.route = {
+                "DRIVING": null,
+                "TRANSIT": null,
+                "WALKING": null,
+                "BICYCLING": null
+            }
+
+            directionsService.route(request, (result, status) => {
                 if(status == 'OK') {
                     data = result;
                     console.log(data)
 
-                    this.route = {
-                        "DRIVING": data,
-                        "TRANSIT": null,
-                        "WALKING": null,
-                        "BICYCLING": null
-                    }
-
-                    directionsRenderer.setDirections(data);
+                    this.route["DRIVING"] = data
+                    directionsRenderer.setDirections(this.route["DRIVING"]);
+                    this.currRoute = this.route["DRIVING"].routes[0].legs[0].steps
+                    console.log(this.currRoute)
+                    console.log(this.currRoute.instructions)
+                    console.log(this.route)
                 }
                 else {
                     console.log(result)
@@ -138,15 +144,10 @@ const app = Vue.createApp({
         },
 
         setTravelMode(transitType) {
-            // console.log(event.target.value)
-            // this.travelMode = event.target.value;
-
-            //^ is autocomplete lol
-            //so need to map to given value and set in search, default is driving
-            //need to handle buttons n shit
 
             this.selectedTransit = transitType
             if (this.route[transitType] == null) {
+                console.log("loading from api")
 
                 var source = document.getElementById('start').value;
                 var dest = document.getElementById('dest').value;
@@ -157,25 +158,75 @@ const app = Vue.createApp({
                     travelMode: transitType
                 };
 
-                directionsService.route(request, function(result, status) {
+                directionsService.route(request, (result, status) => {
                     if(status == 'OK') {
                         data = result;
                         console.log(data)
                         this.route[transitType] = data
+                        this.currRoute = this.route[transitType].routes[0].legs[0].steps
+                        directionsRenderer.setDirections(this.route[transitType]);
+                        console.log(this.route)
                     }
                     else {
                         console.log(result)
                     }
-                });
-
-                directionsRenderer.setDirections(this.route[transitType]);
-                console.log(this.route)
+                });                
             }
 
             else {
+                console.log("loading from dict")
+                this.currRoute = this.route[transitType].routes[0].legs[0].steps
                 directionsRenderer.setDirections(this.route[transitType]);
                 console.log(this.route)
             }
+
+        },
+
+        drawRoute(path, index) {
+            
+            // var routeMap = new google.maps.Map(document.getElementById(id), {
+            //     center: {lat: this.currLat, lng: this.currLng},
+            //     zoom: 20
+            // });
+
+            // let bounds = new google.maps.LatLngBounds();
+            // markers.forEach((location) => {
+            //     bounds.extend(location);
+            // });
+            // routeMap.fitBounds(bounds);
+
+            // var routePolyline = new google.maps.Polyline({
+            //     path: path,
+            //     strokeColor: '#FF0000',
+            //     strokeOpacity: 1.0,
+            //     strokeWeight: 2
+            // })
+
+            // routePolyline.setMap(routeMap)
+
+            const mapId = 'map-' + index;
+            const map = new google.maps.Map(document.getElementById(mapId), {
+                center: { lat: this.currLat, lng: this.currLng },
+                zoom: 13,
+                disableDefaultUI: true,
+            });
+
+            const decodedPath = google.maps.geometry.encoding.decodePath(path);
+
+            const routePolyline = new google.maps.Polyline({
+                path: decodedPath,
+                geodesic: true,
+                strokeColor: "#FF0000",
+                strokeOpacity: 1.0,
+                strokeWeight: 2,
+            });
+
+            routePolyline.setMap(map);
+
+            // var routeDirectionsService = new google.maps.DirectionsService();
+            // var routeDirectionsRenderer = new google.maps.DirectionsRenderer();
+            // routeDirectionsRenderer.setMap(routeMap);
+            // routeDirectionsRenderer.setDirections(this.route["DRIVING"]);
 
         }
     },

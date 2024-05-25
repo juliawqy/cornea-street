@@ -40,6 +40,34 @@
                     </button>
                 </div>
 
+                <!-- route
+                <div class="col my-3" v-for="leg in currRoute">
+                    <div class="card shadow-sm h-100">
+                        <div class="card-img-top">
+                            <div class="img-fluid" :id="leg.polyline.points" @load="drawRoute(leg.path, leg.polyline.points)">
+                        </div>
+                        <div class="card-header">
+                            <h5 class="card-title">
+                                {{ leg.instructions }}
+                            </h5>
+                        </div>
+                        <div class="card-body">
+
+                        </div>
+                    </div>
+                </div> -->
+
+                <!-- route cards -->
+                <div class="card mb-3" v-for="(leg, index) in currRoute" :key="index">
+                    <div class="card-header">
+                        <h6 class="card-title" v-html="leg.instructions">
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div :id="'map-' + index" class="static-map" @load="drawRoute(leg.path)"></div>
+                    </div>
+                </div>
+
             </div>
 
             <!-- map -->
