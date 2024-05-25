@@ -24,7 +24,7 @@
     <div id="app" class="container-fluid p-0">
         <div class="row m-0">
             <!-- side nav bar -->
-            <div class="col-3 p-3" style="background-color: #fafafa;">
+            <div class="col-3 p-3" style="background-color: #fafafa; overflow: scroll;">
                 <div class="mb-3">
                     <input type="text" id="start" class="form-control mb-2" placeholder="Start location">
 
@@ -49,14 +49,11 @@
                 </div>
 
                 <!-- route cards -->
-                <div class="card mb-3" v-for="(leg, index) in currRoute" :key="index">
+                <div class="card" v-for="(leg, index) in currRoute" :key="index">
                     <div class="card-header">
                         <h6 class="card-title" v-html="leg.instructions">
                         </h6>
                         <p class="font-italic"> {{ leg.distance.text }} </p>
-                    </div>
-                    <div class="card-body">
-                        <div :id="'map-' + index" class="static-map"></div>
                     </div>
                 </div>
 

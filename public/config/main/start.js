@@ -206,37 +206,6 @@ const app = Vue.createApp({
 
         },
 
-        drawRoute(path, index) {
-            console.log("drawing route for leg " + index)
-            const mapId = 'map-' + index;
-            const mapElement = document.getElementById(mapId);
-
-            // Ensure the map container is visible and initialized
-            if (!mapElement) {
-                console.error(`Map element with id ${mapId} not found`);
-                return;
-            }
-
-            const mapRoute = new google.maps.Map(mapElement, {
-                center: { lat: this.currLat, lng: this.currLng },
-                zoom: 13,
-                disableDefaultUI: true,
-            });
-
-            const decodedPath = google.maps.geometry.encoding.decodePath(path);
-            console.log(decodedPath)
-
-            const routePolyline = new google.maps.Polyline({
-                path: decodedPath,
-                geodesic: true,
-                strokeColor: "#FF0000",
-                strokeOpacity: 1.0,
-                strokeWeight: 2,
-            });
-
-            routePolyline.setMap(mapRoute);
-        },
-
         startRecording() {
             if (window.hasOwnProperty('webkitSpeechRecognition')) {
                 console.log("recording")
