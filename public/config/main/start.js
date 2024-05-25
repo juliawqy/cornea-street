@@ -180,16 +180,8 @@ const app = Vue.createApp({
             //     directionsRenderer.setDirections(this.route[transitType]);
             //     console.log(this.route)
 
-                // Ensure the DOM is updated before drawing routes
-                this.$nextTick(() => {
-                    this.currRoute.forEach((leg, index) => {
-                        this.drawRoute(leg.polyline.points, index);
-                    });
-                });
-
-            }
-
         },
+
 
         startRecording() {
             if (window.hasOwnProperty('webkitSpeechRecognition')) {
@@ -238,7 +230,7 @@ const app = Vue.createApp({
                 language: "en-US",
                 region: "us",
             };
-        //@ts-ignore
+            //@ts-ignore
             const { places } = Place.searchNearby(request);
 
             if (places.length > 0) {
