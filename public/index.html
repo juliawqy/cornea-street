@@ -22,7 +22,22 @@
 <body>
 
     <div id="app" class="container-fluid p-0">
-        
+        <div class="row m-0">
+            <!-- side nav bar -->
+            <div class="col-3 p-3" style="background-color: #fafafa;">
+                <div class="mb-3">
+                    <input type="text" id="start" class="form-control mb-2" placeholder="Start location">
+                    <input type="text" id="dest" class="form-control mb-2" placeholder="End location">
+
+                    <button type="button" class="btn btn-secondary w-100" @click="calcRoute()">Find Route</button>
+                </div>
+
+            </div>
+
+            <!-- map -->
+            <div class="col-9 p-0" id="map" style="height: 100vh;">
+            </div>
+        </div>
     </div>
     
     <script src="config/main/start.js"></script>
