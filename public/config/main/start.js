@@ -75,6 +75,12 @@ const app = Vue.createApp({
                     console.log(this.currRoute)
                     console.log(this.currRoute.instructions)
                     console.log(this.route)
+
+                    // Draw the route for each leg
+                    this.currRoute.forEach((leg, index) => {
+                        this.drawRoute(leg.polyline.points, index);
+                    });
+
                 }
                 else {
                     console.log(result)
@@ -166,6 +172,12 @@ const app = Vue.createApp({
                         this.currRoute = this.route[transitType].routes[0].legs[0].steps
                         directionsRenderer.setDirections(this.route[transitType]);
                         console.log(this.route)
+
+                        // Draw the route for each leg
+                        this.currRoute.forEach((leg, index) => {
+                            this.drawRoute(leg.polyline.points, index);
+                        });
+
                     }
                     else {
                         console.log(result)
@@ -178,32 +190,17 @@ const app = Vue.createApp({
                 this.currRoute = this.route[transitType].routes[0].legs[0].steps
                 directionsRenderer.setDirections(this.route[transitType]);
                 console.log(this.route)
+
+                // Draw the route for each leg
+                this.currRoute.forEach((leg, index) => {
+                    this.drawRoute(leg.polyline.points, index);
+                });
+
             }
 
         },
 
         drawRoute(path, index) {
-            
-            // var routeMap = new google.maps.Map(document.getElementById(id), {
-            //     center: {lat: this.currLat, lng: this.currLng},
-            //     zoom: 20
-            // });
-
-            // let bounds = new google.maps.LatLngBounds();
-            // markers.forEach((location) => {
-            //     bounds.extend(location);
-            // });
-            // routeMap.fitBounds(bounds);
-
-            // var routePolyline = new google.maps.Polyline({
-            //     path: path,
-            //     strokeColor: '#FF0000',
-            //     strokeOpacity: 1.0,
-            //     strokeWeight: 2
-            // })
-
-            // routePolyline.setMap(routeMap)
-
             const mapId = 'map-' + index;
             const map = new google.maps.Map(document.getElementById(mapId), {
                 center: { lat: this.currLat, lng: this.currLng },
@@ -222,12 +219,6 @@ const app = Vue.createApp({
             });
 
             routePolyline.setMap(map);
-
-            // var routeDirectionsService = new google.maps.DirectionsService();
-            // var routeDirectionsRenderer = new google.maps.DirectionsRenderer();
-            // routeDirectionsRenderer.setMap(routeMap);
-            // routeDirectionsRenderer.setDirections(this.route["DRIVING"]);
-
         }
     },
 
