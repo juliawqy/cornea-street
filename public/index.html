@@ -28,28 +28,21 @@
                 <div class="mb-3">
                     <input type="text" id="start" class="form-control mb-2" placeholder="Start location">
 
-                    <button type="button" id="start-recording" class="btn btn-primary mb-2 w-100" @click="startRecording()">Start Recording</button>
-                    <button type="button" id="stop-recording" class="btn btn-danger mb-2 w-100" @click="stopRecording('start')">Stop Recording</button>
-
-
                     <input type="text" id="dest" class="form-control mb-2" placeholder="End location">
-                    <button type="button" id="start-recording" class="btn btn-primary mb-2 w-100" @click="startRecording()">Start Recording</button>
-                    <button type="button" id="stop-recording" class="btn btn-danger mb-2 w-100" @click="stopRecording('dest')">Stop Recording</button>
 
-                    <button type="button" class="btn btn-secondary w-100" @click="calcRoute()">Find Route</button>
-                </div>
+                    <!-- transit option -->
+                    <div class="input-group mb-2 p-0" id="transitNav">
+                        <button v-for="option in options" :class="['btn btn-outline-secondary p-1 transit-option-btn w-25', { 'active': selectedTransit == option }]" @click="setTravelMode(option)" :value="option" :id="option">
+                            <img v-if="selectedTransit == option" :src="'lib/img/' + option + '_active.png'" class="img-fluid"> 
+                            <img v-else :src="'lib/img/' + option + '.png'" class="img-fluid" >
+                        </button>
+                    </div>
 
-                <!-- transit option -->
-                <div class="input-group mb-2 p-0 d-none" id="transitNav">
-                    <button v-for="option in options" :class="['btn btn-outline-secondary p-1 transit-option-btn w-25', { 'active': selectedTransit == option }]" @click="setTravelMode(option)" :value="option" :id="option">
-                        <img v-if="selectedTransit == option" :src="'lib/img/' + option + '_active.png'" class="img-fluid"> 
-                        <img v-else :src="'lib/img/' + option + '.png'" class="img-fluid">
-                    </button>
-                    
+                    <button type="button" class="btn btn-secondary w-100" @click="calcRoute()">Get Recommendation</button>
                 </div>
 
                 <!-- route cards -->
-                <div class="card" v-for="(leg, index) in currRoute" :key="index">
+                <div class="card" v-for="(leg, index) in currRouteSteps" :key="index">
                     <div class="card-header">
                         <h6 class="card-title" v-html="leg.instructions">
                         </h6>

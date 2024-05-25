@@ -15,10 +15,9 @@ const app = Vue.createApp({
                 'WALKING',
                 'BICYCLING'
             ],
-            selectedTransit: 'DRIVING',
-            route: {},
+            selectedTransit: '',
             currRoute: null,
-            speechOrigin: ""
+            currRouteSteps: null,
         }
     },
 
@@ -55,33 +54,21 @@ const app = Vue.createApp({
             let request = {
                 origin: source,
                 destination: dest,
-                travelMode: 'DRIVING'
+                travelMode: this.selectedTransit
             };
-
-            this.route = {
-                "DRIVING": null,
-                "TRANSIT": null,
-                "WALKING": null,
-                "BICYCLING": null
-            }
 
             directionsService.route(request, (result, status) => {
                 if(status == 'OK') {
                     data = result;
                     console.log(data)
 
-                    this.route["DRIVING"] = data
-                    directionsRenderer.setDirections(this.route["DRIVING"]);
-                    this.currRoute = this.route["DRIVING"].routes[0].legs[0].steps
+                    this.currRoute = data
+                    directionsRenderer.setDirections(this.currRoute);
+                    this.currRouteSteps = this.currRoute.routes[0].legs[0].steps
                     console.log(this.currRoute)
-                    console.log(this.route)
+                    console.log(this.currRouteSteps)
 
-                    // Draw the route for each leg
-                    this.$nextTick(() => {
-                        this.currRoute.forEach((leg, index) => {
-                            this.drawRoute(leg.polyline.points, index);
-                        });
-                    });
+                    this.findRecs(this.currRouteSteps)
 
                 }
                 else {
@@ -89,6 +76,20 @@ const app = Vue.createApp({
                 }
             });
 
+        },
+
+        findRecs(steps) {
+            console.log("finding recs")
+
+            for (step in steps) {
+                console.log(steps[step].end_location.lat())
+                console.log(steps[step].end_location.lng())
+
+                var lat = steps[step].end_location.lat()
+                var lng = steps[step].end_location.lng()
+
+            }
+            
         },
 
         getLocation() {
@@ -134,102 +135,61 @@ const app = Vue.createApp({
             console.log(errorMsg);
         },
 
-        search() {
-            let inputString = this.input;
-            let splitStr = inputString.split(" ")
-            let query = ""
-
-            for (str of splitStr) {
-                query += str + "+"
-            }
-
-            query = query.substring(0, query.length - 1)
-
-            this.src = `https://www.google.com/maps/embed/v1/place?key=${key}&q=${query}&zoom=14`;
-
-
-            console.log(this.src)
-        },
-
         setTravelMode(transitType) {
 
             this.selectedTransit = transitType
-            if (this.route[transitType] == null) {
-                console.log("loading from api")
+            console.log(this.selectedTransit)
+            // if (this.route[transitType] == null) {
+            //     console.log("loading from api")
 
-                var source = document.getElementById('start').value;
-                var dest = document.getElementById('dest').value;
+            //     var source = document.getElementById('start').value;
+            //     var dest = document.getElementById('dest').value;
 
-                let request = {
-                    origin: source,
-                    destination: dest,
-                    travelMode: transitType
-                };
+            //     let request = {
+            //         origin: source,
+            //         destination: dest,
+            //         travelMode: transitType
+            //     };
 
-                directionsService.route(request, (result, status) => {
-                    if(status == 'OK') {
-                        data = result;
-                        console.log(data)
-                        this.route[transitType] = data
-                        this.currRoute = this.route[transitType].routes[0].legs[0].steps
-                        directionsRenderer.setDirections(this.route[transitType]);
-                        console.log(this.route)
+            //     directionsService.route(request, (result, status) => {
+            //         if(status == 'OK') {
+            //             data = result;
+            //             console.log(data)
+            //             this.route[transitType] = data
+            //             this.currRoute = this.route[transitType].routes[0].legs[0].steps
+            //             directionsRenderer.setDirections(this.route[transitType]);
+            //             console.log(this.route)
 
-                        // Ensure the DOM is updated before drawing routes
-                        this.$nextTick(() => {
-                            this.currRoute.forEach((leg, index) => {
-                                this.drawRoute(leg.polyline.points, index);
-                            });
-                        });
+            //             // Ensure the DOM is updated before drawing routes
+            //             this.$nextTick(() => {
+            //                 this.currRoute.forEach((leg, index) => {
+            //                     this.drawRoute(leg.polyline.points, index);
+            //                 });
+            //             });
 
-                    }
-                    else {
-                        console.log(result)
-                    }
-                });                
-            }
+            //         }
+            //         else {
+            //             console.log(result)
+            //         }
+            //     });                
+            // }
 
-            else {
-                console.log("loading from dict")
-                this.currRoute = this.route[transitType].routes[0].legs[0].steps
-                directionsRenderer.setDirections(this.route[transitType]);
-                console.log(this.route)
+            // else {
+            //     console.log("loading from dict")
+            //     this.currRoute = this.route[transitType].routes[0].legs[0].steps
+            //     directionsRenderer.setDirections(this.route[transitType]);
+            //     console.log(this.route)
 
-                // Ensure the DOM is updated before drawing routes
-                this.$nextTick(() => {
-                    this.currRoute.forEach((leg, index) => {
-                        this.drawRoute(leg.polyline.points, index);
-                    });
-                });
+            //     // Ensure the DOM is updated before drawing routes
+            //     this.$nextTick(() => {
+            //         this.currRoute.forEach((leg, index) => {
+            //             this.drawRoute(leg.polyline.points, index);
+            //         });
+            //     });
 
-            }
+            // }
 
         },
-
-        startRecording() {
-            if (window.hasOwnProperty('webkitSpeechRecognition')) {
-                console.log("recording")
-                recognition = new webkitSpeechRecognition();
-                recognition.continuous = true;
-                recognition.interimResults = true;
-                recognition.lang = 'en-SG';
-                recognition.start();
-                recognition.onresult = (event) => {
-                    console.log(event.results[0][0].transcript);
-                    this.speechOrigin = event.results[0][0].transcript;
-                };
-
-                recognition.onerror = function(event) {
-                    recognition.stop();
-                };
-            };
-        },
-
-        stopRecording(id) {
-            console.log("stopping")
-            document.getElementById(id).value = this.speechOrigin;
-            recognition.stop();
-        }
 
     },
     created() {
